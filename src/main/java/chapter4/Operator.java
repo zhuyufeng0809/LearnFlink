@@ -34,37 +34,34 @@ public class Operator {
 
         DataStream<Long> streamSource = env.generateSequence(1, 100);
         DataStream<Long> dataStream = streamSource
-                .flatMap(new RichFunctionTemplate())
+                .flatMap(new RichFlatMapFunction<Long, Long>() {
+                    @Override
+                    public void open(Configuration parameters) {
+                        RuntimeContext rc = getRuntimeContext();
+                        String taskName = rc.getTaskName();
+                        String subtaskName = rc.getTaskNameWithSubtasks();
+                        int subtaskIndexOf = rc.getIndexOfThisSubtask();
+                        int parallel = rc.getNumberOfParallelSubtasks();
+                        int attemptNum = rc.getAttemptNumber();
+                        System.out.println("调用open方法：" + taskName + "||" + subtaskName + "||"
+                                + subtaskIndexOf + "||" + parallel + "||" + attemptNum);
+                    }
+
+                    @Override
+                    public void flatMap(Long input, Collector<Long> out) throws Exception {
+                        Thread.sleep(1000);
+                        out.collect(input);
+                    }
+
+                    @Override
+                    public void close() {
+                        System.out.println("调用close方法");
+                    }
+                })
                 .name("intsmaze-flatMap");
         dataStream.print();
 
         env.execute("RichFunctionTemplate");
     }
 
-}
-
-class RichFunctionTemplate extends RichFlatMapFunction<Long, Long> {
-
-    @Override
-    public void open(Configuration parameters) {
-        RuntimeContext rc = getRuntimeContext();
-        String taskName = rc.getTaskName();
-        String subtaskName = rc.getTaskNameWithSubtasks();
-        int subtaskIndexOf = rc.getIndexOfThisSubtask();
-        int parallel = rc.getNumberOfParallelSubtasks();
-        int attemptNum = rc.getAttemptNumber();
-        System.out.println("调用open方法：" + taskName + "||" + subtaskName + "||"
-        + subtaskIndexOf + "||" + parallel + "||" + attemptNum);
-    }
-
-    @Override
-    public void flatMap(Long input, Collector<Long> out) throws Exception {
-        Thread.sleep(1000);
-        out.collect(input);
-    }
-
-    @Override
-    public void close() {
-        System.out.println("调用close方法");
-    }
 }
