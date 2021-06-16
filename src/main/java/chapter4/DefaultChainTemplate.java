@@ -21,7 +21,7 @@ public class DefaultChainTemplate {
         env.setParallelism(3);
 
         DataStream<Tuple2<String, Integer>> inputStream = env.addSource(new RichSourceFunction<Tuple2<String, Integer>>() {
-            final int sleep = 30000;
+            final int sleep = 6000;
 
             @Override
             public void run(SourceContext<Tuple2<String, Integer>> ctx) throws Exception {
@@ -66,7 +66,7 @@ public class DefaultChainTemplate {
                 System.out.println("map-one操作所属子任务名称:" + getRuntimeContext().getTaskNameWithSubtasks() + ",元素:" + value);
                 return value;
             }
-        });
+        }).startNewChain();
 
         DataStream<Tuple2<String, Integer>> mapTwo = mapOne.map(new RichMapFunction<Tuple2<String, Integer>, Tuple2<String, Integer>>() {
             @Override
