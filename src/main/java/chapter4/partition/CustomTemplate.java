@@ -1,5 +1,6 @@
 package chapter4.partition;
 
+import org.apache.flink.api.common.functions.Partitioner;
 import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -56,15 +57,7 @@ public class CustomTemplate {
                 System.out.println(value + " first map operator " + flag + subtaskName + " index:" + subtaskIndexOf);
                 return value;
             }
-        }).partitionCustom((key, numPartitions) -> {
-            if (key.getCardNum().contains("185") && key.getTrade() > 1000) {
-                return 0;
-            } else if (key.getCardNum().contains("155") && key.getTrade() > 1150) {
-                return 1;
-            } else {
-                return 2;
-            }
-        }, value -> value).map(new RichMapFunction<Trade, Trade>() {
+        }).global().map(new RichMapFunction<Trade, Trade>() {
             @Override
             public Trade map(Trade value) {
                 RuntimeContext context = getRuntimeContext();
