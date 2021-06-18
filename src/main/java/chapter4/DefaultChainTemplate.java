@@ -66,7 +66,7 @@ public class DefaultChainTemplate {
                 System.out.println("map-one操作所属子任务名称:" + getRuntimeContext().getTaskNameWithSubtasks() + ",元素:" + value);
                 return value;
             }
-        }).startNewChain();
+        }).slotSharingGroup("custom-name");
 
         DataStream<Tuple2<String, Integer>> mapTwo = mapOne.map(new RichMapFunction<Tuple2<String, Integer>, Tuple2<String, Integer>>() {
             @Override
@@ -77,7 +77,7 @@ public class DefaultChainTemplate {
         });
         mapTwo.print();
 
-        env.execute("chain");
+        env.execute("slotSharingGroup");
     }
 
 }
