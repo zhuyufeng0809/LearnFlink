@@ -26,42 +26,21 @@ import java.util.List;
  * @Description:
  */
 public class Operator {
-
     public static void main(String[] args) throws Exception {
-
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        env.setParallelism(2);
+        env.setParallelism(10);
+        List<Tuple2<Integer, Integer>> list = new ArrayList<>();
+        list.add(new Tuple2<>(1, 11));
+        list.add(new Tuple2<>(1, 22));
+        list.add(new Tuple2<>(3, 33));
+        list.add(new Tuple2<>(5, 55));
 
-        DataStream<Long> streamSource = env.generateSequence(1, 100);
-        DataStream<Long> dataStream = streamSource
-                .flatMap(new RichFlatMapFunction<Long, Long>() {
-                    @Override
-                    public void open(Configuration parameters) {
-                        RuntimeContext rc = getRuntimeContext();
-                        String taskName = rc.getTaskName();
-                        String subtaskName = rc.getTaskNameWithSubtasks();
-                        int subtaskIndexOf = rc.getIndexOfThisSubtask();
-                        int parallel = rc.getNumberOfParallelSubtasks();
-                        int attemptNum = rc.getAttemptNumber();
-                        System.out.println("调用open方法：" + taskName + "||" + subtaskName + "||"
-                                + subtaskIndexOf + "||" + parallel + "||" + attemptNum);
-                    }
+        DataStream<Tuple2<Integer, Integer>> dataStream = env.fromCollection(list);
 
-                    @Override
-                    public void flatMap(Long input, Collector<Long> out) throws Exception {
-                        Thread.sleep(1000);
-                        out.collect(input);
-                    }
+        KeyedStream<Tuple2<Integer, Integer>, Tuple> keyedStream = dataStream.keyBy(0);
 
-                    @Override
-                    public void close() {
-                        System.out.println("调用close方法");
-                    }
-                })
-                .name("intsmaze-flatMap");
-        dataStream.print();
+        keyedStream.print("输出结果");
 
-        env.execute("RichFunctionTemplate");
+        env.execute("KeyByTemplate");
     }
-
 }
