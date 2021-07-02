@@ -66,6 +66,11 @@ under the License.
 			<version>${flink.version}</version>
 			<scope>compile</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.flink</groupId>
+			<artifactId>flink-statebackend-rocksdb_2.12</artifactId>
+			<version>1.7.2</version>
+		</dependency>
 
 		<!-- Add connector dependencies here. They must be in the default scope (compile). -->
 
@@ -144,7 +149,7 @@ under the License.
 							</filters>
 							<transformers>
 								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<mainClass>chapter4.DefaultChainTemplate</mainClass>
+									<mainClass>chapter5.SavePointedTemplate</mainClass>
 								</transformer>
 							</transformers>
 						</configuration>
