@@ -58,13 +58,11 @@ public class ParallelSourceTemplate {
                         } else if (indexOfThisSubtask == 1) {
                             sourceFlag = "MQ";
                         }
-                        //super.open(parameters);
 
                     }
 
                     @Override
                     public void close() throws Exception {
-                        //super.close();
                     }
                 });
 

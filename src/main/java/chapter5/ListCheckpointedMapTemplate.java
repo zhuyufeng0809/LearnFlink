@@ -4,6 +4,7 @@ import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
 import org.apache.flink.api.common.time.Time;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.runtime.state.StateBackend;
 import org.apache.flink.runtime.state.filesystem.FsStateBackend;
 import org.apache.flink.streaming.api.checkpoint.ListCheckpointed;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -29,7 +30,7 @@ public class ListCheckpointedMapTemplate {
         env.enableCheckpointing(10000);
         env.setParallelism(1);
         String path = "file:///Users/zhuyufeng/IdeaProjects/LearnFlink/src/main/resources/";
-        FsStateBackend stateBackend = new FsStateBackend(path);
+        StateBackend stateBackend = new FsStateBackend(path);
         env.setStateBackend(stateBackend);
         env.setRestartStrategy(RestartStrategies.failureRateRestart(
                 3,
