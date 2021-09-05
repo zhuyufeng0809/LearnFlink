@@ -10,6 +10,7 @@ import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.tuple.Tuple;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.metrics.Counter;
 import org.apache.flink.runtime.state.filesystem.FsStateBackend;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.KeyedStream;
@@ -68,6 +69,7 @@ public class ValueStateFlatMap{
         keyedStream.flatMap(new RichFlatMapFunction<Tuple2<Integer, Integer>, Tuple2<Integer, Integer>>() {
 
             public transient ValueState<Tuple2<Integer, Integer>> valueState;
+            private transient Counter counter;
 
             @Override
             public void open(Configuration config) {
@@ -89,13 +91,19 @@ public class ValueStateFlatMap{
 
                 if (currentSum == null) {
                     currentSum = input;
+                    setMertic(input);
                 } else {
                     currentSum.f1 = currentSum.f1 + input.f1;
                     currentSum.f0 = currentSum.f0 + input.f0;
                 }
+
                 out.collect(input);
                 valueState.update(currentSum);
                 System.out.println(Thread.currentThread().getName() + " currentSum after:" + valueState.value() + ",input :" + input);
+            }
+
+            public void setMertic(Tuple2<Integer, Integer> input){
+                this.counter = getRuntimeContext().getMetricGroup().counter("ffff" + input.f0.toString());
             }
 
         });

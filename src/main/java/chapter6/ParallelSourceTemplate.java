@@ -58,7 +58,6 @@ public class ParallelSourceTemplate {
                         } else if (indexOfThisSubtask == 1) {
                             sourceFlag = "MQ";
                         }
-
                     }
 
                     @Override

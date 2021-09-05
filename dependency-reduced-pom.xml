@@ -88,7 +88,7 @@
               </filters>
               <transformers>
                 <transformer>
-                  <mainClass>chapter5.SavePointedTemplate</mainClass>
+                  <mainClass>MetricTest</mainClass>
                 </transformer>
               </transformers>
             </configuration>
