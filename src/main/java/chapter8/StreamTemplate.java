@@ -26,14 +26,11 @@ public class StreamTemplate {
                 new Tuple3<>(1L, "电脑", 8888.00),
                 new Tuple3<>(3L, "平板", 899.99)));
 
-        Table tableOrder = tableEnv.fromDataStream(order, "id,name,amount");
+        tableEnv.registerDataStream("table_order", order, "user,product,amount");
 
-        Table result = tableOrder.where("name = '手机'").select("*");
+        Table a = tableEnv.sqlQuery("select user,count(1) from table_order group by user");
 
-        tableEnv.sqlQuery("select * from " + tableOrder);
-
-        tableEnv.toAppendStream(result, Row.class).print("Sql");
-
-        env.execute();
+        tableEnv.toRetractStream(a, Row.class).print();
+        System.out.println(env.getExecutionPlan());
     }
 }
