@@ -55,6 +55,7 @@ public class ClickBean {
     }
 
     public long getTime() {
+        System.out.println(LocalDateTime.parse(this.time, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         return LocalDateTime.parse(this.time, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")).toEpochSecond(ZoneOffset.of("+0"));
     }
 

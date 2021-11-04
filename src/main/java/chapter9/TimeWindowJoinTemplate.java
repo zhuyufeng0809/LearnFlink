@@ -11,22 +11,22 @@ import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.List;
 
 /**
  * @author zhuyufeng
  * @version 1.0
- * @date 2021-10-28
+ * @date 2021-11-04
  * @Description:
  */
-public class GroupWindowTemplate {
+public class TimeWindowJoinTemplate {
     public static void main(String[] args) throws Exception {
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
-        env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         StreamTableEnvironment tableEnv = TableEnvironment.getTableEnvironment(env);
 
-        ArrayList<ClickBean> clicksData = new ArrayList<>();
+        env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
+        List<ClickBean> clicksData = new ArrayList<>();
         clicksData.add(new ClickBean(1, "张三", "./intsmaze", "2019-07-28 12:00:00"));
         clicksData.add(new ClickBean(2, "李四", "./flink", "2019-07-28 12:05:05"));
         clicksData.add(new ClickBean(3, "张三", "./intsmaze", "2019-07-28 12:08:08"));
@@ -38,10 +38,10 @@ public class GroupWindowTemplate {
         clicksData.add(new ClickBean(9, "王五", "./flink", "2019-07-28 14:20:00"));
         clicksData.add(new ClickBean(10, "李四", "./intsmaze", "2019-07-28 14:30:00"));
         clicksData.add(new ClickBean(11, "李四", "./sql", "2019-07-28 14:40:00"));
-        Collections.shuffle(clicksData);
         DataStream<ClickBean> dataStream = env.fromCollection(clicksData);
 
         dataStream = dataStream.assignTimestampsAndWatermarks(new AssignerWithPeriodicWatermarks<ClickBean>() {
+
             @Override
             public long extractTimestamp(ClickBean element, long previousElementTimestamp) {
                 return element.getTime();
@@ -53,20 +53,31 @@ public class GroupWindowTemplate {
             }
         });
 
+
         tableEnv.registerDataStream("Clicks", dataStream, "id,user,VisitTime.rowtime,url");
 
-        String sqlQuery = "SELECT user AS name,\" +\n" +
-                "                \"count(url) \" +\n" +
-                "                \",TUMBLE_START(VisitTime, INTERVAL '1' HOUR) \" +\n" +
-                "                \",TUMBLE_ROWTIME(VisitTime, INTERVAL '1' HOUR) \" +\n" +
-                "                \",TUMBLE_END(VisitTime, INTERVAL '1' HOUR)  \" +\n" +
-                "                \"FROM Clicks \" +\n" +
-                "                \"GROUP BY TUMBLE(VisitTime, INTERVAL '1' HOUR), user ";
+        String sqlQuery =
+                "SELECT temp.name, " +
+                        "temp.minId," +
+                        "id," +
+                        "temp.n," +
+                        "url," +
+                        "temp.betweenStart," +
+                        "temp.betweenTime" +
+                        " FROM (" +
+                        "SELECT user as name, " +
+                        "count(url) as n ," +
+                        "min(id) as minId," +
+                        "TUMBLE_ROWTIME(VisitTime, INTERVAL '1' HOUR) as betweenTime," +
+                        "TUMBLE_START(VisitTime, INTERVAL '1' HOUR) as betweenStart  " +
+                        "FROM Clicks " +
+                        "GROUP BY TUMBLE(VisitTime, INTERVAL '1' HOUR), user"
+                        + ") temp LEFT JOIN Clicks ON temp.minId=Clicks.id " +
+                        "AND Clicks.VisitTime <= temp.betweenTime AND Clicks.VisitTime >= temp.betweenTime - INTERVAL '1' HOUR";
 
         Table table = tableEnv.sqlQuery(sqlQuery);
-        DataStream<Row> resultStream = tableEnv.toAppendStream(table, Row.class);
 
-        resultStream.print();
+        tableEnv.toAppendStream(table, Row.class).print();
 
         env.execute();
     }
