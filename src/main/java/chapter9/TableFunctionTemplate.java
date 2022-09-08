@@ -32,6 +32,7 @@ public class TableFunctionTemplate {
 
         Table sqlLeftResult = tableEnv.sqlQuery("SELECT user,product,amount,word, length FROM orderTable LEFT JOIN LATERAL TABLE(splitFunction(product)) AS T(word, length) ON TRUE");
 
+        //SELECT user,product,amount,word, length FROM orderTable LEFT JOIN LATERAL TABLE(splitFunction(product)) AS T(word, length) ON TRUE
         tableEnv.toRetractStream(sqlLeftResult, Row.class).print("LEFT JOIN ");
 
         env.execute("TableFunctionTemplate");

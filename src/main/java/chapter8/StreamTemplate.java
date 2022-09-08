@@ -31,6 +31,5 @@ public class StreamTemplate {
         Table a = tableEnv.sqlQuery("select user,count(1) from table_order group by user");
 
         tableEnv.toRetractStream(a, Row.class).print();
-        System.out.println(env.getExecutionPlan());
     }
 }

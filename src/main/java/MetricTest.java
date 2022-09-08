@@ -39,6 +39,7 @@ public class MetricTest {
             }
         }).name("mySourceOperator").print();
 
+        env.getStreamGraph();
         env.execute("MetricTest");
     }
 }
