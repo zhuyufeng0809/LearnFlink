@@ -6,8 +6,7 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.AssignerWithPeriodicWatermarks;
 import org.apache.flink.streaming.api.watermark.Watermark;
 import org.apache.flink.table.api.Table;
-import org.apache.flink.table.api.TableEnvironment;
-import org.apache.flink.table.api.java.StreamTableEnvironment;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
 
 import java.util.ArrayList;
@@ -24,7 +23,7 @@ public class GroupWindowTemplate {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
-        StreamTableEnvironment tableEnv = TableEnvironment.getTableEnvironment(env);
+        StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env);
 
         ArrayList<ClickBean> clicksData = new ArrayList<>();
         clicksData.add(new ClickBean(1, "张三", "./intsmaze", "2019-07-28 12:00:00"));

@@ -11,6 +11,7 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.runtime.state.filesystem.FsStateBackend;
+import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -39,6 +40,7 @@ public class CheckpointMapTemplate {
         String path = "file:///Users/zhuyufeng/IdeaProjects/LearnFlink/src/main/resources/";
         FsStateBackend stateBackend = new FsStateBackend(path);
         env.setStateBackend(stateBackend);
+        env.enableCheckpointing(3000L, CheckpointingMode.AT_LEAST_ONCE);
         env.setRestartStrategy(RestartStrategies.failureRateRestart(
                 3,
                 Time.of(5, TimeUnit.MINUTES),

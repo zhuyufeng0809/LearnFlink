@@ -3,8 +3,7 @@ package chapter9;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.table.api.TableEnvironment;
-import org.apache.flink.table.api.java.StreamTableEnvironment;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
 
 import java.util.ArrayList;
@@ -20,7 +19,7 @@ import java.util.List;
 public class JoinTemplate {
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        StreamTableEnvironment tEnv = TableEnvironment.getTableEnvironment(env);
+        StreamTableEnvironment tEnv = StreamTableEnvironment.create(env);
         env.setParallelism(1);
 
         List<ClickBean> clicksData = new ArrayList<>();
